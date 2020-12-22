@@ -3,11 +3,6 @@
  * */
 
 /**
- * 1) Que peut-on toujours faire si on a deux objets de poids p1 et p2 tel que P = p1 + p2.
- * 
- * Si l'on a deux poids, p1 et p2 tel que p1 + p2 = P, peut donc toujours remplir un seul
- * colis de poids P.
- * 
  * 3) Que peut-on dire si un algorithme remplit deux colis à moins de la moitié de
  * leur capacité ?
  * 
@@ -28,6 +23,7 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <algorithm>    // std::find
 
 void afficher(std::vector<std::string> tableau) {
     std::cout << "affichage du tableau {";
@@ -38,103 +34,140 @@ void afficher(std::vector<std::string> tableau) {
     std::cout << "nombre de colis : " << (int)tableau.size() << std::endl;
 }
 
-void glouton1(std::vector<int> poidObj, std::vector<std::string>* poidColis, int poidsMAx) {
+void afficher(std::vector<int> tableau) {
+    std::cout << "affichage du tableau {";
+    for(int entier : tableau) {
+        std::cout << entier << ", ";
+    }
+    std::cout << "}" << std::endl;
+    std::cout << "nombre d'objet : " << (int)tableau.size() << std::endl;
+}
+
+void trieDecroissant(std::vector<int>& tableau) {
+    for(int i=0; i<int(tableau.size()); ++i) {
+        for(int j=i+1; j<int(tableau.size()); ++j)
+        if(tableau[i] >= tableau[j]) {
+            int tmp = tableau[i];
+            tableau[i] = tableau[j];
+            tableau[j] = tmp;
+        }
+    }
+}
+
+void trieCroissant(std::vector<int>& tableau) {
+    for(int i=0; i<int(tableau.size()); ++i) {
+        for(int j=i+1; j<int(tableau.size()); ++j)
+        if(tableau[i] <= tableau[j]) {
+            int tmp = tableau[i];
+            tableau[i] = tableau[j];
+            tableau[j] = tmp;
+        }
+    }
+}
+
+void remplissageSimple(std::vector<int> poidObj,
+                                    std::vector<std::string>* poidColis, int poidsMAx) {
     // Initalisation
     int nombreColis = 0, sommePoids = 0;
-    std::string allPoids = "\0";
+    std::string listePoids = "\0";
 
     // Remplissage
     for(int poids : poidObj) {
         if(sommePoids + poids <= poidsMAx) {
             sommePoids += poids;
-            allPoids += std::to_string(poids);
-            allPoids += ", ";
+            listePoids += std::to_string(poids);
+            listePoids += ", ";
         }
         else {
-            poidColis->push_back(allPoids);
-            allPoids = "\0";
-            allPoids += std::to_string(poids);
-            allPoids += ", ";
+            poidColis->push_back(listePoids);
+            listePoids = "\0";
+            listePoids += std::to_string(poids);
+            listePoids += ", ";
             sommePoids = 0;
             sommePoids += poids;
         }
     }
 
     if(sommePoids != 0) {
-        poidColis->push_back(allPoids);
-        allPoids = "\0";
+        poidColis->push_back(listePoids);
+        listePoids = "\0";
         sommePoids = 0;
     }
 }
 
-void glouton2(std::vector<int> poidObj, std::vector<std::string>* poidColis, int poidsMAx) {
-    // Sort
-    for(int i=0; i<int(poidObj.size()); ++i) {
-        for(int j=i+1; j<int(poidObj.size()); ++j)
-        if(poidObj[i] >= poidObj[j]) {
-            int tmp = poidObj[i];
-            poidObj[i] = poidObj[j];
-            poidObj[j] = tmp;
-        }
-    }
-
-    // Initalisation
-    int nombreColis = 0, sommePoids = 0;
-    std::string allPoids = "\0";
-
-    // Remplissage
-    for(int poids : poidObj) {
-        if(sommePoids + poids <= poidsMAx) {
-            sommePoids += poids;
-            allPoids += std::to_string(poids);
-            allPoids += ", ";
-        }
-        else {
-            poidColis->push_back(allPoids);
-            allPoids = "\0";
-            allPoids += std::to_string(poids);
-            allPoids += ", ";
-            sommePoids = 0;
-            sommePoids += poids;
-        }
-    }
-
-    if(sommePoids != 0) {
-        poidColis->push_back(allPoids);
-        allPoids = "\0";
-        sommePoids = 0;
-    }
+void maximumObjParColis(std::vector<int> poidObj, std::vector<std::string>* poidColis, int poidsMAx) {
+    trieDecroissant(poidObj);
+    remplissageSimple(poidObj, poidColis, poidsMAx);
 }
 
 void opti(std::vector<int> poidObj, std::vector<std::string>* poidColis, int poidsMAx) {
-    // Sort
-    for(int i=0; i<int(poidObj.size()); ++i) {
-        for(int j=i+1; j<int(poidObj.size()); ++j)
-        if(poidObj[i] <= poidObj[j]) {
-            int tmp = poidObj[i];
-            poidObj[i] = poidObj[j];
-            poidObj[j] = tmp;
+    trieCroissant(poidObj);
+
+    int taillePoidObj = (int)poidObj.size();
+    std::string tmp = "\0";
+    for(int i = 0; i < taillePoidObj; ++i) {
+        if(poidObj[i] == -1) {
+            continue;
+        }
+        int sommePoids = 0;
+        for(int j = i + 1; j < taillePoidObj; ++j) {
+            if(poidObj[j] == -1) {
+                continue;
+            }
+            if(sommePoids == 0) {
+                tmp += std::to_string(poidObj[i]);
+                tmp += ", ";
+                sommePoids = poidObj[i];
+                poidObj[i] = -1;
+            }
+            if(sommePoids + poidObj[j] <= poidsMAx) {
+                tmp += std::to_string(poidObj[j]);
+                tmp += ", ";
+                sommePoids += poidObj[j];
+                poidObj[j] = -1;
+            }
+        }
+        if(!tmp.empty()) {
+            poidColis->push_back(tmp);
+        }
+        tmp = "\0";
+        sommePoids = 0;
+    }
+
+    for(int poids : poidObj) {
+        if(poids != -1) {
+            tmp += std::to_string(poids);
+            tmp += " ,";
         }
     }
-    
+    if(!tmp.empty()) {
+        poidColis->push_back(tmp);
+    }
     
 }
 
 int main(void)
 {
-    std::vector<int> poidObj = {1, 4, 1, 6, 7, 9, 3, 2, 8};
+    std::vector<int> poidObj = {2, 6, 1, 5, 8, 4, 5, 7, 5, 3};
+    int P = 9;
 
     std::cout << "##### algo1 #####" << std::endl;
     std::vector<std::string> poidColis;
-    glouton1(poidObj, &poidColis, 10);
+    remplissageSimple(poidObj, &poidColis, P);
     afficher(poidColis);
-    std::cout << "##########\n" << std::endl;
+    std::cout << "################\n" << std::endl;
 
     std::cout << "##### algo2 #####" << std::endl;
     poidColis.clear();
-    glouton2(poidObj, &poidColis, 10);
+    maximumObjParColis(poidObj, &poidColis, P);
     afficher(poidColis);
-    std::cout << "##########\n" << std::endl;
+    std::cout << "################\n" << std::endl;
+
+    std::cout << "##### opti #####" << std::endl;
+    poidColis.clear();
+    opti(poidObj, &poidColis, P);
+    afficher(poidColis);
+    std::cout << "################\n" << std::endl;
     
     return 0;
 }
