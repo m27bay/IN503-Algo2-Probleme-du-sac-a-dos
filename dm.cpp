@@ -107,6 +107,16 @@ void glouton2(std::vector<int> poidObj, std::vector<std::string>* poidColis, int
 }
 
 void opti(std::vector<int> poidObj, std::vector<std::string>* poidColis, int poidsMAx) {
+    // Sort
+    for(int i=0; i<int(poidObj.size()); ++i) {
+        for(int j=i+1; j<int(poidObj.size()); ++j)
+        if(poidObj[i] <= poidObj[j]) {
+            int tmp = poidObj[i];
+            poidObj[i] = poidObj[j];
+            poidObj[j] = tmp;
+        }
+    }
+    
     
 }
 
