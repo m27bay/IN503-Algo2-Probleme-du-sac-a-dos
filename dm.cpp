@@ -1,8 +1,15 @@
 #include <iostream>
 #include <cstdlib>
+#include <fstream>
+
 #include <vector>
 #include <string>
-#include <algorithm>    // std::find
+
+#include <random>
+#include <chrono> // for chrono::system_clock
+#include <functional> // for bind
+
+#define SORTIE "sortie.txt"
 
 void afficher(std::vector<std::vector<int>> tableau) {
     std::cout << "Affichage du tableau (";
@@ -26,16 +33,79 @@ void afficher(std::vector<int> tableau) {
     std::cout << "Nombre d'objet : " << (int)tableau.size() << std::endl;
 }
 
-void trieCroissant(std::vector<int>& tableau) {
-    for(int i=0; i<int(tableau.size()); ++i) {
-        for(int j=i+1; j<int(tableau.size()); ++j) {
-            if(tableau[i] >= tableau[j]) {
-                int tmp = tableau[i];
-                tableau[i] = tableau[j];
-                tableau[j] = tmp;
+void ecrireTableauDansFichier(std::string nomFichier, std::vector<std::vector<int>> tableau) {
+    std::ofstream flux;
+    flux.open(nomFichier, std::ios::out | std::ios::app);
+    if(flux) {
+        flux << "Affichage du tableau (";
+        for(std::vector<int> sousTableau : tableau) {
+            flux << "(";
+            for(int element : sousTableau) {
+                flux << element << ", ";
             }
+            flux << "), ";
+        }
+        flux << ").";
+        flux << "Nombre de colis : " << (int)tableau.size() << "\n";
+    }
+    else {
+        std::cout << "ERREUR : impossible d'ouvrir le fichier." << std::endl;
+    }
+}
+
+void nettoyerFichier(std::string nomFichier) {
+    std::ofstream flux;
+    flux.open(nomFichier, std::ios::out | std::ios::trunc);
+    if(flux) {
+        flux << "";
+    }
+    else {
+        std::cout << "ERREUR : impossible d'ouvrir le fichier." << std::endl;
+    }
+}
+
+void echange(int& a, int& b) {
+    int tmp = a;
+    a = b;
+    b = tmp;
+}
+
+int partition(std::vector<int>& tableau, int deb, int fin) {
+    int pivot = tableau[fin];
+    int i = (deb - 1);
+    for(int j=deb; j<fin; ++j) {
+        if(tableau[j] < pivot) {
+            i++;
+            echange(tableau[i], tableau[j]);
         }
     }
+    echange(tableau[i+1], tableau[fin]);
+
+    return i+1;
+}
+
+void quickSort(std::vector<int>& tableau, int deb, int fin) {
+    if(deb < fin) {
+        int positionPartition = partition(tableau, deb, fin);
+        quickSort(tableau, deb, positionPartition - 1);
+        quickSort(tableau, positionPartition + 1, fin);
+    }
+}
+
+void retourner(std::vector<int>& tableau) {
+    int tailleTableau = (int)tableau.size();
+    for(int i=0; i<tailleTableau/2; ++i) {
+        echange(tableau[i], tableau[tailleTableau - 1 -i]);
+    }
+}
+
+void trieCroissant(std::vector<int>& tableau) {
+    quickSort(tableau, 0, (int)tableau.size() - 1);
+}
+
+void trieDecroissant(std::vector<int>& tableau) {
+    quickSort(tableau, 0, (int)tableau.size() - 1);
+    retourner(tableau);
 }
 
 void trieCroissant(std::vector<int>& tableau, int poidsMax) {
@@ -44,18 +114,6 @@ void trieCroissant(std::vector<int>& tableau, int poidsMax) {
             double rapport = tableau[i]/poidsMax;
             double rapport2 = tableau[j]/poidsMax;
             if(rapport >= rapport2) {
-                int tmp = tableau[i];
-                tableau[i] = tableau[j];
-                tableau[j] = tmp;
-            }
-        }
-    }
-}
-
-void trieDecroissant(std::vector<int>& tableau) {
-    for(int i=0; i<int(tableau.size()); ++i) {
-        for(int j=i+1; j<int(tableau.size()); ++j) {
-            if(tableau[i] <= tableau[j]) {
                 int tmp = tableau[i];
                 tableau[i] = tableau[j];
                 tableau[j] = tmp;
@@ -110,14 +168,14 @@ void maximumRapportParColis(std::vector<int> poidsObj,
 void remplissageOptimise(std::vector<int> poidsObj,
                                 std::vector<std::vector<int>>* poidsColis, int poidsMax) {
     trieDecroissant(poidsObj);
+    if(poidsObj[0] > poidsMax) {
+        std::cout << "ERREUR : le poids ne peut pas être mis dans un colis.";
+        return;
+    }
 
     int tailleTableauObj = (int)poidsObj.size();
     std::vector<int> listePoids;
     for(int i = 0; i < tailleTableauObj; ++i) {
-        if(poidsObj[i] > poidsMax) {
-            std::cout << "ERREUR : le poids ne peut pas être mis dans un colis.";
-            return;
-        }
         if(poidsObj[i] == -1) {
             continue;
         }
@@ -161,14 +219,27 @@ void genereTableauAleatoire(std::vector<int>* poidsObj, int nombreObj,
     }
 }
 
+void genereTableauAleatoire2(std::vector<int>* poidsObj, int nombreObj,
+                                                        int poidsMinObj, int poidsMaxObj) {
+    
+    std::default_random_engine re(std::chrono::system_clock::now().time_since_epoch().count());
+    std::uniform_int_distribution<int> distrib(poidsMinObj, poidsMaxObj);
+    auto rd = bind(distrib, re);
+    for(int i=0; i<nombreObj; ++i) {
+        poidsObj->push_back(rd());
+    }
+}
+
 double moyenneRemplissageSimple(int nombreEntree, int nombreObj, int poidsMinObj,
                                                 int poidsMaxObj, int poidsMaxColis) {
     double sommeNombreColis = 0;
+
     for(int repetition=0; repetition<nombreEntree; ++repetition) {
         std::vector<int> poidsObj;
         std::vector<std::vector<int>> poidsColis;
 
-        genereTableauAleatoire(&poidsObj, nombreObj, poidsMinObj, poidsMaxObj);
+        // genereTableauAleatoire(&poidsObj, nombreObj, poidsMinObj, poidsMaxObj);
+        genereTableauAleatoire2(&poidsObj, nombreObj, poidsMinObj, poidsMaxObj);
         remplissageSimple(poidsObj, &poidsColis, poidsMaxColis);
         sommeNombreColis += (int)poidsColis.size();
 
@@ -182,11 +253,13 @@ double moyenneRemplissageSimple(int nombreEntree, int nombreObj, int poidsMinObj
 double moyenneMaximumObjParColis(int nombreEntree, int nombreObj, int poidsMinObj,
                                                 int poidsMaxObj, int poidsMaxColis) {
     double sommeNombreColis = 0;
+
     for(int repetition=0; repetition<nombreEntree; ++repetition) {
         std::vector<int> poidsObj;
         std::vector<std::vector<int>> poidsColis;
 
-        genereTableauAleatoire(&poidsObj, nombreObj, poidsMinObj, poidsMaxObj);
+        // genereTableauAleatoire(&poidsObj, nombreObj, poidsMinObj, poidsMaxObj);
+        genereTableauAleatoire2(&poidsObj, nombreObj, poidsMinObj, poidsMaxObj);
         maximumObjParColis(poidsObj, &poidsColis, poidsMaxColis);
         sommeNombreColis += (int)poidsColis.size();
 
@@ -200,11 +273,13 @@ double moyenneMaximumObjParColis(int nombreEntree, int nombreObj, int poidsMinOb
 double moyenneMaximumRapportParColis(int nombreEntree, int nombreObj, int poidsMinObj,
                                                 int poidsMaxObj, int poidsMaxColis) {
     double sommeNombreColis = 0;
+
     for(int repetition=0; repetition<nombreEntree; ++repetition) {
         std::vector<int> poidsObj;
         std::vector<std::vector<int>> poidsColis;
 
-        genereTableauAleatoire(&poidsObj, nombreObj, poidsMinObj, poidsMaxObj);
+        // genereTableauAleatoire(&poidsObj, nombreObj, poidsMinObj, poidsMaxObj);
+        genereTableauAleatoire2(&poidsObj, nombreObj, poidsMinObj, poidsMaxObj);
         maximumRapportParColis(poidsObj, &poidsColis, poidsMaxColis);
         sommeNombreColis += (int)poidsColis.size();
 
@@ -218,12 +293,16 @@ double moyenneMaximumRapportParColis(int nombreEntree, int nombreObj, int poidsM
 double moyenneRemplissageOptimise(int nombreEntree, int nombreObj, int poidsMinObj,
                                                 int poidsMaxObj, int poidsMaxColis) {
     double sommeNombreColis = 0;
+    nettoyerFichier(SORTIE);
+
     for(int repetition=0; repetition<nombreEntree; ++repetition) {
         std::vector<int> poidsObj;
         std::vector<std::vector<int>> poidsColis;
 
-        genereTableauAleatoire(&poidsObj, nombreObj, poidsMinObj, poidsMaxObj);
+        // genereTableauAleatoire(&poidsObj, nombreObj, poidsMinObj, poidsMaxObj);
+        genereTableauAleatoire2(&poidsObj, nombreObj, poidsMinObj, poidsMaxObj);
         remplissageOptimise(poidsObj, &poidsColis, poidsMaxColis);
+        ecrireTableauDansFichier(SORTIE, poidsColis);
         sommeNombreColis += (int)poidsColis.size();
 
         poidsObj.clear();
@@ -233,7 +312,7 @@ double moyenneRemplissageOptimise(int nombreEntree, int nombreObj, int poidsMinO
     return sommeNombreColis/nombreEntree;
 }
 
-void moyenne(int nombreEntree, int nombreObj, int poidsMinObj,
+void calculMoyenneToutAlgo(int nombreEntree, int nombreObj, int poidsMinObj,
                                                 int poidsMaxObj, int poidsMaxColis) {
     double moyenne1 = moyenneRemplissageSimple(nombreEntree, nombreObj, poidsMinObj,
                                                                         poidsMaxObj, poidsMaxColis);
@@ -244,55 +323,103 @@ void moyenne(int nombreEntree, int nombreObj, int poidsMinObj,
     double moyenne4 = moyenneRemplissageOptimise(nombreEntree, nombreObj, poidsMinObj,
                                                                         poidsMaxObj, poidsMaxColis);
 
-    std::cout << "Moyenne via remplissage simple " << moyenne1 << " / " << nombreObj << std::endl;
-    std::cout << "Moyenne via maximum objet par colis " << moyenne2 << " / " << nombreObj << std::endl;
-    std::cout << "Moyenne via maximum rapport par colis " << moyenne3 << " / " << nombreObj << std::endl;
-    std::cout << "Moyenne via remplissage optimise " << moyenne4 << " / " << nombreObj << std::endl;
+    std::cout << "Moyenne via remplissage simple " << moyenne1 << " / " << nombreObj << "\n";
+    std::cout << "Soit " << moyenne1/100 << "%" << std::endl;
+    std::cout << "Moyenne via maximum objet par colis " << moyenne2 << " / " << nombreObj << "\n";
+    std::cout << "Soit " << moyenne2/100 << "%" << std::endl;
+    std::cout << "Moyenne via maximum rapport par colis " << moyenne3 << " / " << nombreObj << "\n";
+    std::cout << "Soit " << moyenne3/100 << "%" << std::endl;
+    std::cout << "Moyenne via remplissage optimise " << moyenne4 << " / " << nombreObj << "\n";
+    std::cout << "Soit " << moyenne4/100 << "%" << std::endl;
 }
 
-int main(void)
-{
+void testGenerationNombreAleatoire() {
     std::cout << "\033[1;31m##### Test generation nombre aleatoire #####\033[0m" << std::endl;
     std::vector<int> poidsObj;
     int nombreObj = 10, poidsMaxObj = 9, poidsMinObj = 1;
     genereTableauAleatoire(&poidsObj, nombreObj, poidsMinObj, poidsMaxObj);
     afficher(poidsObj);
+}
 
-    poidsObj.clear();
+void testRemplissageSimple() {
+    std::vector<int> poidsObj;
+    std::vector<std::vector<int>> poidsColis;
     poidsObj = {2,6,1,5,8,4,5,7,5,3};
     int P = 9;
 
     std::cout << "\n\033[1;31m##### remplissage simple #####\033[0m" << std::endl;
-    std::vector<std::vector<int>> poidsColis;
     remplissageSimple(poidsObj, &poidsColis, P);
     afficher(poidsColis);
+}
+
+void testMaximumObjParColis() {
+    std::vector<int> poidsObj;
+    std::vector<std::vector<int>> poidsColis;
+    poidsObj = {2,6,1,5,8,4,5,7,5,3};
+    int P = 9;
 
     std::cout << "\n\033[1;31m##### maximum objet par colis #####\033[0m" << std::endl;
-    poidsColis.clear();
     maximumObjParColis(poidsObj, &poidsColis, P);
     afficher(poidsColis);
+}
+
+void testMaximumRapportParColis() {
+    std::vector<int> poidsObj;
+    std::vector<std::vector<int>> poidsColis;
+    poidsObj = {2,6,1,5,8,4,5,7,5,3};
+    int P = 9;
 
     std::cout << "\n\033[1;31m##### maximum rapport poidsObj/poidsMax par colis #####\033[0m" << std::endl;
-    poidsColis.clear();
     maximumRapportParColis(poidsObj, &poidsColis, P);
     afficher(poidsColis);
-   
+}
+
+void testReplissageOptimise() {
+    std::vector<int> poidsObj;
+    std::vector<std::vector<int>> poidsColis;
+    poidsObj = {2,6,1,5,8,4,5,7,5,3};
+    int P = 9;
+
     std::cout << "\n\033[1;31m##### remplissage optimise #####\033[0m" << std::endl;
-    poidsColis.clear();
     remplissageOptimise(poidsObj, &poidsColis, P);
     afficher(poidsColis);
-    
-    std::cout << "\n\033[1;31m####### Moyenne ######" << std::endl;
-    srand(time(NULL));
+}
+
+void testMoyenne1() {
     std::cout << "\033[1;34m##### Test n°1 : #####\n\033[0m> 1000 entrees <\n> 100 objets <" << std::endl;
     std::cout << "> poids obj entre 1 et 10 <\n> poids colis 10 <\n" << std::endl;
-    moyenne(1000, 100, 1, 10, 10);
+    calculMoyenneToutAlgo(1000, 100, 1, 10, 10);
+}
+
+void testMoyenne2() {
     std::cout << "\033[1;34m\n##### Test n°2 : #####\n\033[0m> 1000 entrees <\n> 100 objets <" << std::endl;
     std::cout << "> poids obj entre 1 et 1000 <\n> poids colis 1000 <\n" << std::endl;
-    moyenne(1000, 100, 1, 1000, 1000);
+    calculMoyenneToutAlgo(1000, 100, 1, 1000, 1000);
+}
+
+void testMoyenne3() {
     std::cout << "\033[1;34m\n##### Test n°3 : #####\n\033[0m> 1000 entrees <\n> 100 objets <" << std::endl;
     std::cout << "> poids obj entre 1 et 10000 <\n> poids colis 10000 <\n" << std::endl;
-    moyenne(1000, 100, 1, 10000, 10000);
+    calculMoyenneToutAlgo(1000, 100, 1, 10000, 10000);
+}
+
+void calculMoyenne() {
+    srand(time(NULL));
+    std::cout << "\n\033[1;31m####### Moyenne ######" << std::endl;
+    testMoyenne1();
+    testMoyenne2();
+    testMoyenne3();
+}
+
+int main(void)
+{
+    testGenerationNombreAleatoire();
+    testRemplissageSimple();
+    testMaximumObjParColis();
+    testMaximumRapportParColis();
+    testReplissageOptimise();
+   
+    calculMoyenne();
     
     return 0;
 }
