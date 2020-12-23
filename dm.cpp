@@ -314,23 +314,27 @@ double moyenneRemplissageOptimise(int nombreEntree, int nombreObj, int poidsMinO
 
 void calculMoyenneToutAlgo(int nombreEntree, int nombreObj, int poidsMinObj,
                                                 int poidsMaxObj, int poidsMaxColis) {
-    double moyenne1 = moyenneRemplissageSimple(nombreEntree, nombreObj, poidsMinObj,
+    double moyenneSimple = moyenneRemplissageSimple(nombreEntree, nombreObj, poidsMinObj,
                                                                         poidsMaxObj, poidsMaxColis);
-    double moyenne2 = moyenneMaximumObjParColis(nombreEntree, nombreObj, poidsMinObj,
+    double moyenneMaxObj = moyenneMaximumObjParColis(nombreEntree, nombreObj, poidsMinObj,
                                                                         poidsMaxObj, poidsMaxColis);
-    double moyenne3 = moyenneMaximumRapportParColis(nombreEntree, nombreObj, poidsMinObj,
+    double moyenneMaxRapport = moyenneMaximumRapportParColis(nombreEntree, nombreObj, poidsMinObj,
                                                                         poidsMaxObj, poidsMaxColis);
-    double moyenne4 = moyenneRemplissageOptimise(nombreEntree, nombreObj, poidsMinObj,
+    double moyenneOpti = moyenneRemplissageOptimise(nombreEntree, nombreObj, poidsMinObj,
                                                                         poidsMaxObj, poidsMaxColis);
 
-    std::cout << "Moyenne via remplissage simple " << moyenne1 << " / " << nombreObj << "\n";
-    std::cout << "Soit " << moyenne1/100 << "%" << std::endl;
-    std::cout << "Moyenne via maximum objet par colis " << moyenne2 << " / " << nombreObj << "\n";
-    std::cout << "Soit " << moyenne2/100 << "%" << std::endl;
-    std::cout << "Moyenne via maximum rapport par colis " << moyenne3 << " / " << nombreObj << "\n";
-    std::cout << "Soit " << moyenne3/100 << "%" << std::endl;
-    std::cout << "Moyenne via remplissage optimise " << moyenne4 << " / " << nombreObj << "\n";
-    std::cout << "Soit " << moyenne4/100 << "%" << std::endl;
+    std::cout << "Remplissage simple : " << moyenneSimple << " colis." << std::endl;
+    std::cout << "Maximum objet par colis : " << moyenneMaxObj << " colis." << std::endl;
+    std::cout << "Maximum rapport par colis : " << moyenneMaxRapport << " colis." << std::endl;
+    std::cout << "Remplissage optimise : " << moyenneOpti << " colis.\n" << std::endl;
+
+    std::cout << "\033[1;32mDifference avec l'optimale : \033[0m" << std::endl;
+    std::cout << "Remplissage simple : ";
+    std::cout << (moyenneSimple - moyenneOpti) << " colis" << std::endl;
+    std::cout << "Maximum objet par colis : ";
+    std::cout << (moyenneMaxObj - moyenneOpti) << " colis" << std::endl;
+    std::cout << "Maximum rapport par colis : ";
+    std::cout << (moyenneMaxRapport - moyenneOpti) << " colis\n" << std::endl;
 }
 
 void testGenerationNombreAleatoire() {
@@ -385,30 +389,23 @@ void testReplissageOptimise() {
     afficher(poidsColis);
 }
 
-void testMoyenne1() {
-    std::cout << "\033[1;34m##### Test n°1 : #####\n\033[0m> 1000 entrees <\n> 100 objets <" << std::endl;
-    std::cout << "> poids obj entre 1 et 10 <\n> poids colis 10 <\n" << std::endl;
-    calculMoyenneToutAlgo(1000, 100, 1, 10, 10);
-}
-
-void testMoyenne2() {
-    std::cout << "\033[1;34m\n##### Test n°2 : #####\n\033[0m> 1000 entrees <\n> 100 objets <" << std::endl;
-    std::cout << "> poids obj entre 1 et 1000 <\n> poids colis 1000 <\n" << std::endl;
-    calculMoyenneToutAlgo(1000, 100, 1, 1000, 1000);
-}
-
-void testMoyenne3() {
-    std::cout << "\033[1;34m\n##### Test n°3 : #####\n\033[0m> 1000 entrees <\n> 100 objets <" << std::endl;
-    std::cout << "> poids obj entre 1 et 10000 <\n> poids colis 10000 <\n" << std::endl;
-    calculMoyenneToutAlgo(1000, 100, 1, 10000, 10000);
+void testMoyenne(int numeroTest, int nombreEntree, int nombreObj, int poidsObjMin, 
+                                int poidsObjMax, int poidsColis) {
+    
+    std::cout << "\033[1;34m##### Test n° " << numeroTest << "  : #####\033[0m\n";
+    std::cout << "> " << nombreEntree << " entrees <\n> " << nombreObj << " objets <" << std::endl;
+    std::cout << "> poids obj entre " << poidsObjMin << " et " << poidsObjMax << " <\n";
+    std::cout << "> poids colis " << poidsColis << " <\n" << std::endl;
+    calculMoyenneToutAlgo(nombreEntree, nombreObj, poidsObjMin, poidsObjMax, poidsColis);
 }
 
 void calculMoyenne() {
     srand(time(NULL));
     std::cout << "\n\033[1;31m####### Moyenne ######" << std::endl;
-    testMoyenne1();
-    testMoyenne2();
-    testMoyenne3();
+    testMoyenne(1, 1000, 100, 1, 10, 10);
+    // testMoyenne(2, 1000, 100, 1, 100, 100);
+    // testMoyenne(3, 1000, 100, 1, 1000, 1000);
+    // testMoyenne(4, 1000, 100, 1, 10000, 10000);
 }
 
 int main(void)
