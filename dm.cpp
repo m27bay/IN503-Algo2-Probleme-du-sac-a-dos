@@ -4,10 +4,14 @@
 #include <string>
 #include <algorithm>    // std::find
 
-void afficher(std::vector<std::string> tableau) {
+void afficher(std::vector<std::vector<int>> tableau) {
     std::cout << "Affichage du tableau (";
-    for(std::string str : tableau) {
-        std::cout << "( " << str << " ), ";
+    for(std::vector<int> sousTableau : tableau) {
+        std::cout << "(";
+        for(int element : sousTableau) {
+            std::cout << element << ", ";
+        }
+        std::cout << "), ";
     }
     std::cout << ")." << std::endl;
     std::cout << "Nombre de colis : " << (int)tableau.size() << std::endl;
@@ -60,10 +64,10 @@ void trieDecroissant(std::vector<int>& tableau) {
     }
 }
 
-void remplissageSimple(std::vector<int> poidsObj, std::vector<std::string>* poidsColis, int poidsMax) {
+void remplissageSimple(std::vector<int> poidsObj, std::vector<std::vector<int>>* poidsColis, int poidsMax) {
     // Initalisation
     int nombreColis = 0, sommePoids = 0;
-    std::string listePoids = "\0";
+    std::vector<int> listePoids;
 
     // Remplissage
     for(int poids : poidsObj) {
@@ -73,14 +77,12 @@ void remplissageSimple(std::vector<int> poidsObj, std::vector<std::string>* poid
         }
         if(sommePoids + poids <= poidsMax) {
             sommePoids += poids;
-            listePoids += std::to_string(poids);
-            listePoids += ", ";
+            listePoids.push_back(poids);
         }
         else {
             poidsColis->push_back(listePoids);
-            listePoids = "\0";
-            listePoids += std::to_string(poids);
-            listePoids += ", ";
+            listePoids.clear();
+            listePoids.push_back(poids);
             sommePoids = 0;
             sommePoids += poids;
         }
@@ -88,28 +90,29 @@ void remplissageSimple(std::vector<int> poidsObj, std::vector<std::string>* poid
 
     if(sommePoids != 0) {
         poidsColis->push_back(listePoids);
-        listePoids = "\0";
+        listePoids.clear();
         sommePoids = 0;
     }
 }
 
-void maximumObjParColis(std::vector<int> poidsObj, std::vector<std::string>* poidsColis,
-                                                                        int poidsMax) {
+void maximumObjParColis(std::vector<int> poidsObj,
+                                std::vector<std::vector<int>>* poidsColis, int poidsMax) {
     trieCroissant(poidsObj);
     remplissageSimple(poidsObj, poidsColis, poidsMax);
 }
 
-void maximumRapportParColis(std::vector<int> poidsObj, std::vector<std::string>* poidsColis,
-                                                                        int poidsMax) {
+void maximumRapportParColis(std::vector<int> poidsObj,
+                                std::vector<std::vector<int>>* poidsColis, int poidsMax) {
     trieCroissant(poidsObj, poidsMax);
     remplissageSimple(poidsObj, poidsColis, poidsMax);
 }
 
-void remplissageOptimise(std::vector<int> poidsObj, std::vector<std::string>* poidsColis, int poidsMax) {
+void remplissageOptimise(std::vector<int> poidsObj,
+                                std::vector<std::vector<int>>* poidsColis, int poidsMax) {
     trieDecroissant(poidsObj);
 
     int tailleTableauObj = (int)poidsObj.size();
-    std::string listePoids = "\0";
+    std::vector<int> listePoids;
     for(int i = 0; i < tailleTableauObj; ++i) {
         if(poidsObj[i] > poidsMax) {
             std::cout << "ERREUR : le poids ne peut pas être mis dans un colis.";
@@ -124,14 +127,12 @@ void remplissageOptimise(std::vector<int> poidsObj, std::vector<std::string>* po
                 continue;
             }
             if(sommePoids == 0) {
-                listePoids += std::to_string(poidsObj[i]);
-                listePoids += ", ";
+                listePoids.push_back(poidsObj[i]);
                 sommePoids = poidsObj[i];
                 poidsObj[i] = -1;
             }
             if(sommePoids + poidsObj[j] <= poidsMax) {
-                listePoids += std::to_string(poidsObj[j]);
-                listePoids += ", ";
+                listePoids.push_back(poidsObj[j]);
                 sommePoids += poidsObj[j];
                 poidsObj[j] = -1;
             }
@@ -139,14 +140,13 @@ void remplissageOptimise(std::vector<int> poidsObj, std::vector<std::string>* po
         if(!listePoids.empty()) {
             poidsColis->push_back(listePoids);
         }
-        listePoids = "\0";
+        listePoids.clear();
         sommePoids = 0;
     }
 
     for(int poids : poidsObj) {
         if(poids != -1) {
-            listePoids += std::to_string(poids);
-            listePoids += " ,";
+            listePoids.push_back(poids);
         }
     }
     if(!listePoids.empty()) {
@@ -166,7 +166,7 @@ double moyenneRemplissageSimple(int nombreEntree, int nombreObj, int poidsMinObj
     double sommeNombreColis = 0;
     for(int repetition=0; repetition<nombreEntree; ++repetition) {
         std::vector<int> poidsObj;
-        std::vector<std::string> poidsColis;
+        std::vector<std::vector<int>> poidsColis;
 
         genereTableauAleatoire(&poidsObj, nombreObj, poidsMinObj, poidsMaxObj);
         remplissageSimple(poidsObj, &poidsColis, poidsMaxColis);
@@ -184,7 +184,7 @@ double moyenneMaximumObjParColis(int nombreEntree, int nombreObj, int poidsMinOb
     double sommeNombreColis = 0;
     for(int repetition=0; repetition<nombreEntree; ++repetition) {
         std::vector<int> poidsObj;
-        std::vector<std::string> poidsColis;
+        std::vector<std::vector<int>> poidsColis;
 
         genereTableauAleatoire(&poidsObj, nombreObj, poidsMinObj, poidsMaxObj);
         maximumObjParColis(poidsObj, &poidsColis, poidsMaxColis);
@@ -202,7 +202,7 @@ double moyenneMaximumRapportParColis(int nombreEntree, int nombreObj, int poidsM
     double sommeNombreColis = 0;
     for(int repetition=0; repetition<nombreEntree; ++repetition) {
         std::vector<int> poidsObj;
-        std::vector<std::string> poidsColis;
+        std::vector<std::vector<int>> poidsColis;
 
         genereTableauAleatoire(&poidsObj, nombreObj, poidsMinObj, poidsMaxObj);
         maximumRapportParColis(poidsObj, &poidsColis, poidsMaxColis);
@@ -220,7 +220,7 @@ double moyenneRemplissageOptimise(int nombreEntree, int nombreObj, int poidsMinO
     double sommeNombreColis = 0;
     for(int repetition=0; repetition<nombreEntree; ++repetition) {
         std::vector<int> poidsObj;
-        std::vector<std::string> poidsColis;
+        std::vector<std::vector<int>> poidsColis;
 
         genereTableauAleatoire(&poidsObj, nombreObj, poidsMinObj, poidsMaxObj);
         remplissageOptimise(poidsObj, &poidsColis, poidsMaxColis);
@@ -263,7 +263,7 @@ int main(void)
     int P = 9;
 
     std::cout << "\n\033[1;31m##### remplissage simple #####\033[0m" << std::endl;
-    std::vector<std::string> poidsColis;
+    std::vector<std::vector<int>> poidsColis;
     remplissageSimple(poidsObj, &poidsColis, P);
     afficher(poidsColis);
 
