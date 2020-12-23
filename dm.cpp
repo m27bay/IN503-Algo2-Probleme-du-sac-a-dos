@@ -403,9 +403,9 @@ void calculMoyenne() {
     srand(time(NULL));
     std::cout << "\n\033[1;31m####### Moyenne ######" << std::endl;
     testMoyenne(1, 1000, 100, 1, 10, 10);
-    // testMoyenne(2, 1000, 100, 1, 100, 100);
-    // testMoyenne(3, 1000, 100, 1, 1000, 1000);
-    // testMoyenne(4, 1000, 100, 1, 10000, 10000);
+    testMoyenne(2, 1000, 100, 1, 100, 100);
+    testMoyenne(3, 1000, 100, 1, 1000, 1000);
+    testMoyenne(4, 1000, 100, 1, 10000, 10000);
 }
 
 int main(void)
