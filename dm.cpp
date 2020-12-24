@@ -302,7 +302,14 @@ void remplissageOptimise(std::vector<int> poidsObj,
     }
 }
 
-
+/**
+ * *Description : Rempli le tableau en parametre poidsObj avec nombreObj nombres aleatoire entre poidsMinObj
+ * *                et poidsMaxObj.
+ * @param poidsObj, le tableau a remplir.
+ * @param nombreObj, le nombre d element a mettre.
+ * @param poidsMinObj, le poids minimal.
+ * @param poidsMaxObj, le poids maximal.
+ * */
 void genereTableauAleatoire(std::vector<int>* poidsObj, int nombreObj,
                                                         int poidsMinObj, int poidsMaxObj) {
     for(int i=0; i<nombreObj; ++i) {
@@ -310,6 +317,14 @@ void genereTableauAleatoire(std::vector<int>* poidsObj, int nombreObj,
     }
 }
 
+/**
+ * *Description : Rempli le tableau en parametre poidsObj avec nombreObj nombres aleatoire entre poidsMinObj
+ * *                et poidsMaxObj.
+ * @param poidsObj, le tableau a remplir.
+ * @param nombreObj, le nombre d element a mettre.
+ * @param poidsMinObj, le poids minimal.
+ * @param poidsMaxObj, le poids maximal.
+ * */
 void genereTableauAleatoire2(std::vector<int>* poidsObj, int nombreObj,
                                                         int poidsMinObj, int poidsMaxObj) {
     
@@ -321,6 +336,14 @@ void genereTableauAleatoire2(std::vector<int>* poidsObj, int nombreObj,
     }
 }
 
+/**
+ * *Description : Calcule la moyenne du nombre de colis via la methode du remplissage simple.
+ * @param nombreEntree, le nombre de repetition.
+ * @param nombreObj, le nombre d element a mettre.
+ * @param poidsMinObj, le poids minimal.
+ * @param poidsMaxObj, le poids maximal.
+ * @param poidsMaxColis, le poids du colis maximal.
+ * */
 double moyenneRemplissageSimple(int nombreEntree, int nombreObj, int poidsMinObj,
                                                 int poidsMaxObj, int poidsMaxColis) {
     double sommeNombreColis = 0;
@@ -341,6 +364,15 @@ double moyenneRemplissageSimple(int nombreEntree, int nombreObj, int poidsMinObj
     return sommeNombreColis/nombreEntree;
 }
 
+/**
+ * *Description : Calcule la moyenne du nombre de colis via la methode de l optimisation du nombre
+ * *                d objet par colis.
+ * @param nombreEntree, le nombre de repetition.
+ * @param nombreObj, le nombre d element a mettre.
+ * @param poidsMinObj, le poids minimal.
+ * @param poidsMaxObj, le poids maximal.
+ * @param poidsMaxColis, le poids du colis maximal.
+ * */
 double moyenneMaximumObjParColis(int nombreEntree, int nombreObj, int poidsMinObj,
                                                 int poidsMaxObj, int poidsMaxColis) {
     double sommeNombreColis = 0;
@@ -361,6 +393,15 @@ double moyenneMaximumObjParColis(int nombreEntree, int nombreObj, int poidsMinOb
     return sommeNombreColis/nombreEntree;
 }
 
+/**
+ * *Description : Calcule la moyenne du nombre de colis via la methode de l optimisation du rapport
+ * *                d objet par colis.
+ * @param nombreEntree, le nombre de repetition.
+ * @param nombreObj, le nombre d element a mettre.
+ * @param poidsMinObj, le poids minimal.
+ * @param poidsMaxObj, le poids maximal.
+ * @param poidsMaxColis, le poids du colis maximal.
+ * */
 double moyenneMaximumRapportParColis(int nombreEntree, int nombreObj, int poidsMinObj,
                                                 int poidsMaxObj, int poidsMaxColis) {
     double sommeNombreColis = 0;
@@ -381,6 +422,14 @@ double moyenneMaximumRapportParColis(int nombreEntree, int nombreObj, int poidsM
     return sommeNombreColis/nombreEntree;
 }
 
+/**
+ * *Description : Calcule la moyenne du nombre de colis via la methode de l algorithme optimise.
+ * @param nombreEntree, le nombre de repetition.
+ * @param nombreObj, le nombre d element a mettre.
+ * @param poidsMinObj, le poids minimal.
+ * @param poidsMaxObj, le poids maximal.
+ * @param poidsMaxColis, le poids du colis maximal.
+ * */
 double moyenneRemplissageOptimise(int nombreEntree, int nombreObj, int poidsMinObj,
                                                 int poidsMaxObj, int poidsMaxColis) {
     double sommeNombreColis = 0;
@@ -403,6 +452,14 @@ double moyenneRemplissageOptimise(int nombreEntree, int nombreObj, int poidsMinO
     return sommeNombreColis/nombreEntree;
 }
 
+/**
+ * *Description : Calcule la moyenne pour tout les algorithmes.
+ * @param nombreEntree, le nombre de repetition.
+ * @param nombreObj, le nombre d element a mettre.
+ * @param poidsMinObj, le poids minimal.
+ * @param poidsMaxObj, le poids maximal.
+ * @param poidsMaxColis, le poids du colis maximal.
+ * */
 void calculMoyenneToutAlgo(int nombreEntree, int nombreObj, int poidsMinObj,
                                                 int poidsMaxObj, int poidsMaxColis) {
     double moyenneSimple = moyenneRemplissageSimple(nombreEntree, nombreObj, poidsMinObj,
@@ -490,6 +547,9 @@ void testMoyenne(int numeroTest, int nombreEntree, int nombreObj, int poidsObjMi
     calculMoyenneToutAlgo(nombreEntree, nombreObj, poidsObjMin, poidsObjMax, poidsColis);
 }
 
+/**
+ * *Description : Lance le calcul de moyenne pour des entrees differentes.
+ * */
 void calculMoyenne() {
     srand(time(NULL));
     std::cout << "\n\033[1;31m####### Moyenne ######" << std::endl;
