@@ -1,16 +1,25 @@
+/**
+ * Ce fichier comporte toutes les fonctions programmees, et utilisees pour le devoir d'algorithme.
+ * @author Mickael LE DENMAT 21804355
+ * */
+
 #include <iostream>
 #include <cstdlib>
-#include <fstream>
+#include <fstream> // Pour ecrire dans un fichier
 
 #include <vector>
 #include <string>
 
 #include <random>
-#include <chrono> // for chrono::system_clock
-#include <functional> // for bind
+#include <chrono> // Pour chrono::system_clock
+#include <functional> // Pour bind
 
 #define SORTIE "sortie.txt"
 
+/**
+ * *Description : Affiche les elements du tableau 2D en parametre.
+ * @param tableau, un tableau 2D d'entier.
+ * */
 void afficher(std::vector<std::vector<int>> tableau) {
     std::cout << "Affichage du tableau (";
     for(std::vector<int> sousTableau : tableau) {
@@ -24,6 +33,10 @@ void afficher(std::vector<std::vector<int>> tableau) {
     std::cout << "Nombre de colis : " << (int)tableau.size() << std::endl;
 }
 
+/**
+ * *Description : Affiche les elements du tableau 1D en parametre.
+ * @param tableau, un tableau 1D d'entier.
+ * */
 void afficher(std::vector<int> tableau) {
     std::cout << "Affichage du tableau (";
     for(int entier : tableau) {
@@ -33,6 +46,11 @@ void afficher(std::vector<int> tableau) {
     std::cout << "Nombre d'objet : " << (int)tableau.size() << std::endl;
 }
 
+/**
+ * *Description : Ecrit dans un fichier le tableau 2D en parametre.
+ * @param nomFichier, le nom fichier ou l on ecrit.
+ * @param tableau, un tableau 2D d'entier.
+ * */
 void ecrireTableauDansFichier(std::string nomFichier, std::vector<std::vector<int>> tableau) {
     std::ofstream flux;
     flux.open(nomFichier, std::ios::out | std::ios::app);
@@ -53,6 +71,10 @@ void ecrireTableauDansFichier(std::string nomFichier, std::vector<std::vector<in
     }
 }
 
+/**
+ * *Desciption : Vide le fichier en parametre.
+ * @param nomFichier, le nom du fichier a vider.
+ * */
 void nettoyerFichier(std::string nomFichier) {
     std::ofstream flux;
     flux.open(nomFichier, std::ios::out | std::ios::trunc);
@@ -64,12 +86,24 @@ void nettoyerFichier(std::string nomFichier) {
     }
 }
 
+/**
+ * *Description : Echange la valeur des deux entiers.
+ * @param a, la première valeur.
+ * @param b, la deuxième valeur.
+ * */
 void echange(int& a, int& b) {
     int tmp = a;
     a = b;
     b = tmp;
 }
 
+/**
+ * *Description : Echange les valeurs du tableau entre le debut et la fin
+ * *                afin de la trié par ordre croissant.
+ * @param tableau, le tableau a trie.
+ * @param deb, le debut du sous tableau.
+ * @param fin, la fin du sous tableau.
+ * */
 int partition(std::vector<int>& tableau, int deb, int fin) {
     int pivot = tableau[fin];
     int i = (deb - 1);
@@ -84,6 +118,14 @@ int partition(std::vector<int>& tableau, int deb, int fin) {
     return i+1;
 }
 
+
+/**
+ * *Description : Algorithme quick sort qui permet de trier les elements du tableau entre le debut
+ * *                et la fin.
+ * @param tableau, le tableau a trie.
+ * @param deb, le debut du sous tableau.
+ * @param fin, la fin du sous tableau.
+ * */
 void quickSort(std::vector<int>& tableau, int deb, int fin) {
     if(deb < fin) {
         int positionPartition = partition(tableau, deb, fin);
@@ -92,6 +134,10 @@ void quickSort(std::vector<int>& tableau, int deb, int fin) {
     }
 }
 
+/**
+ * *Description : Permet de retourner le tableau en parametre.
+ * @param tableau, le tableau a retourner.
+ * */
 void retourner(std::vector<int>& tableau) {
     int tailleTableau = (int)tableau.size();
     for(int i=0; i<tailleTableau/2; ++i) {
@@ -99,15 +145,29 @@ void retourner(std::vector<int>& tableau) {
     }
 }
 
+/**
+ * *Description : Applique l'algorithme de quick sort pour trier le tableau dans l ordre croissant.
+ * @param tableau, le tableau a trier.
+ * */
 void trieCroissant(std::vector<int>& tableau) {
     quickSort(tableau, 0, (int)tableau.size() - 1);
 }
 
+/**
+ * *Description : Applique l'algorithme de quick sort pour trier le tableau dans l ordre decroissant.
+ * @param tableau, le tableau a trier.
+ * */
 void trieDecroissant(std::vector<int>& tableau) {
     quickSort(tableau, 0, (int)tableau.size() - 1);
     retourner(tableau);
 }
 
+/**
+ * *Description : Applique l'algorithme de trie par insertion pour trier le tableau en fonction du
+ * *                rapport entre l element i du tableau et le poidsMax dans l ordre croissant.
+ * @param tableau, le tableau a trier.
+ * @retur
+ * */
 void trieCroissant(std::vector<int>& tableau, int poidsMax) {
     for(int i=0; i<int(tableau.size()); ++i) {
         for(int j=i+1; j<int(tableau.size()); ++j) {
@@ -122,6 +182,14 @@ void trieCroissant(std::vector<int>& tableau, int poidsMax) {
     }
 }
 
+/**
+ * *Description : Permet de remplir le tableau 2D d entier poidsColis, avec les poids stocke dans le
+ * *                tableau poidsObj en ne depassant pas le poidsMax par colis.
+ * @param poidsObj, le tableau d entier ou son stocke les poids.
+ * @param poidsColis, le tableau 2D d entier ou l on stocke chaque colis ainsi
+ *                      que les poids qui les composes.
+ * @param poidsMax, le poids maximal d un colis.
+ * */
 void remplissageSimple(std::vector<int> poidsObj, std::vector<std::vector<int>>* poidsColis, int poidsMax) {
     // Initalisation
     int nombreColis = 0, sommePoids = 0;
@@ -133,11 +201,12 @@ void remplissageSimple(std::vector<int> poidsObj, std::vector<std::vector<int>>*
             std::cout << "ERREUR : le poids ne peut pas être mis dans un colis.";
             return;
         }
+        // Ajout du poids le le colis courant.
         if(sommePoids + poids <= poidsMax) {
             sommePoids += poids;
             listePoids.push_back(poids);
         }
-        else {
+        else { // Ajout du poids dans un autre colis.
             poidsColis->push_back(listePoids);
             listePoids.clear();
             listePoids.push_back(poids);
@@ -146,6 +215,7 @@ void remplissageSimple(std::vector<int> poidsObj, std::vector<std::vector<int>>*
         }
     }
 
+    // Si certains poids ne sont dans aucun colis.
     if(sommePoids != 0) {
         poidsColis->push_back(listePoids);
         listePoids.clear();
@@ -153,18 +223,38 @@ void remplissageSimple(std::vector<int> poidsObj, std::vector<std::vector<int>>*
     }
 }
 
+/**
+ * *Description : Remplis les colis en mettant le maximum d'objet par colis.
+ * @param poidsObj, le tableau des poids.
+ * @param poidsCOlis, le tableau des colis.
+ * @param poidsMax, le poids maximal d un colis.
+ * */
 void maximumObjParColis(std::vector<int> poidsObj,
                                 std::vector<std::vector<int>>* poidsColis, int poidsMax) {
     trieCroissant(poidsObj);
     remplissageSimple(poidsObj, poidsColis, poidsMax);
 }
 
+/**
+ * *Description : Remplis les colis en mettant optimisant le rapport entre le poids des objets et
+ * *                le poidsMax par colis.
+ * @param poidsObj, le tableau des poids.
+ * @param poidsCOlis, le tableau des colis.
+ * @param poidsMax, le poids maximal d un colis.
+ * */
 void maximumRapportParColis(std::vector<int> poidsObj,
                                 std::vector<std::vector<int>>* poidsColis, int poidsMax) {
     trieCroissant(poidsObj, poidsMax);
     remplissageSimple(poidsObj, poidsColis, poidsMax);
 }
 
+/**
+ * *Description : Remplis les colis de mettant un poids et en trouvant son plus grand complementaire
+ * *                tel que poidsMax = p1 + p2.
+ * @param poidsObj, le tableau des poids.
+ * @param poidsCOlis, le tableau des colis.
+ * @param poidsMax, le poids maximal d un colis.
+ * */
 void remplissageOptimise(std::vector<int> poidsObj,
                                 std::vector<std::vector<int>>* poidsColis, int poidsMax) {
     trieDecroissant(poidsObj);
@@ -176,15 +266,15 @@ void remplissageOptimise(std::vector<int> poidsObj,
     int tailleTableauObj = (int)poidsObj.size();
     std::vector<int> listePoids;
     for(int i = 0; i < tailleTableauObj; ++i) {
-        if(poidsObj[i] == -1) {
+        if(poidsObj[i] == -1) { // Si on a déjà mis le poids dans un colis.
             continue;
         }
         int sommePoids = 0;
         for(int j = i + 1; j < tailleTableauObj; ++j) {
-            if(poidsObj[j] == -1) {
+            if(poidsObj[j] == -1) { // Si on a déjà mis le poids dans un colis.
                 continue;
             }
-            if(sommePoids == 0) {
+            if(sommePoids == 0) { // Si le colis est vide.
                 listePoids.push_back(poidsObj[i]);
                 sommePoids = poidsObj[i];
                 poidsObj[i] = -1;
@@ -195,22 +285,23 @@ void remplissageOptimise(std::vector<int> poidsObj,
                 poidsObj[j] = -1;
             }
         }
-        if(!listePoids.empty()) {
+        if(!listePoids.empty()) { // Si il reste des poids en dehors des colis.
             poidsColis->push_back(listePoids);
         }
         listePoids.clear();
         sommePoids = 0;
     }
 
-    for(int poids : poidsObj) {
+    for(int poids : poidsObj) { // Si on n a pas vu des poids.
         if(poids != -1) {
             listePoids.push_back(poids);
         }
     }
     if(!listePoids.empty()) {
         poidsColis->push_back(listePoids);
-    }   
+    }
 }
+
 
 void genereTableauAleatoire(std::vector<int>* poidsObj, int nombreObj,
                                                         int poidsMinObj, int poidsMaxObj) {
