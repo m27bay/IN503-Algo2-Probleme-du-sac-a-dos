@@ -48,7 +48,7 @@ void afficher(std::vector<int> tableau) {
 
 /**
  * *Description : Ecrit dans un fichier le tableau 2D en parametre.
- * @param nomFichier, le nom fichier ou l on ecrit.
+ * @param nomFichier, le nom du fichier ou l on ecrit.
  * @param tableau, un tableau 2D d'entier.
  * */
 void ecrireTableauDansFichier(std::string nomFichier, std::vector<std::vector<int>> tableau) {
@@ -87,7 +87,7 @@ void nettoyerFichier(std::string nomFichier) {
 }
 
 /**
- * *Description : Echange la valeur des deux entiers.
+ * *Description : Echange la valeur des deux entiers en parametre.
  * @param a, la première valeur.
  * @param b, la deuxième valeur.
  * */
@@ -99,7 +99,7 @@ void echange(int& a, int& b) {
 
 /**
  * *Description : Echange les valeurs du tableau entre le debut et la fin
- * *                afin de la trié par ordre croissant.
+ * *                afin de trié le tableau en parametre par ordre croissant.
  * @param tableau, le tableau a trie.
  * @param deb, le debut du sous tableau.
  * @param fin, la fin du sous tableau.
@@ -121,7 +121,7 @@ int partition(std::vector<int>& tableau, int deb, int fin) {
 
 /**
  * *Description : Algorithme quick sort qui permet de trier les elements du tableau entre le debut
- * *                et la fin.
+ * *                et la fin par ordre croissant.
  * @param tableau, le tableau a trie.
  * @param deb, le debut du sous tableau.
  * @param fin, la fin du sous tableau.
@@ -154,7 +154,8 @@ void trieCroissant(std::vector<int>& tableau) {
 }
 
 /**
- * *Description : Applique l'algorithme de quick sort pour trier le tableau dans l ordre decroissant.
+ * *Description : Applique l'algorithme de quick sort pour trier le tableau dans l ordre croissant
+ *                  *puis inverse le tableau.
  * @param tableau, le tableau a trier.
  * */
 void trieDecroissant(std::vector<int>& tableau) {
@@ -485,6 +486,9 @@ void calculMoyenneToutAlgo(int nombreEntree, int nombreObj, int poidsMinObj,
     std::cout << (moyenneMaxRapport - moyenneOpti) << " colis\n" << std::endl;
 }
 
+/**
+ * *Description : Lance la fonction qui genere un tableau avec des nombres aleatoires.
+ * */
 void testGenerationNombreAleatoire() {
     std::cout << "\033[1;31m##### Test generation nombre aleatoire #####\033[0m" << std::endl;
     std::vector<int> poidsObj;
@@ -493,6 +497,9 @@ void testGenerationNombreAleatoire() {
     afficher(poidsObj);
 }
 
+/**
+ * *Description : Lance la fonction qui utilise l algorithme de remplissage simple.
+ * */
 void testRemplissageSimple() {
     std::vector<int> poidsObj;
     std::vector<std::vector<int>> poidsColis;
@@ -504,6 +511,10 @@ void testRemplissageSimple() {
     afficher(poidsColis);
 }
 
+/**
+ * *Description : Lance la fonction qui utilise l algorithme de remplissage en maximisant
+ *                  * le nombre d'objet par colis.
+ * */
 void testMaximumObjParColis() {
     std::vector<int> poidsObj;
     std::vector<std::vector<int>> poidsColis;
@@ -515,6 +526,10 @@ void testMaximumObjParColis() {
     afficher(poidsColis);
 }
 
+/**
+ * *Description : Lance la fonction qui utilise l algorithme de remplissage en maximisant
+ *                  * le rapport poids objet, poids du colis.
+ * */
 void testMaximumRapportParColis() {
     std::vector<int> poidsObj;
     std::vector<std::vector<int>> poidsColis;
@@ -526,6 +541,9 @@ void testMaximumRapportParColis() {
     afficher(poidsColis);
 }
 
+/**
+ * *Description : Lance la fonction qui utilise l algorithme de remplissage optimise.
+ * */
 void testReplissageOptimise() {
     std::vector<int> poidsObj;
     std::vector<std::vector<int>> poidsColis;
@@ -537,6 +555,9 @@ void testReplissageOptimise() {
     afficher(poidsColis);
 }
 
+/**
+ * *Description : Lance la fonction qui calcul la moyenne pour tous les algorithmes.
+ * */
 void testMoyenne(int numeroTest, int nombreEntree, int nombreObj, int poidsObjMin, 
                                 int poidsObjMax, int poidsColis) {
     
@@ -559,6 +580,9 @@ void calculMoyenne() {
     testMoyenne(4, 1000, 100, 1, 10000, 10000);
 }
 
+/**
+ * *Description : fonction principale
+ * */
 int main(void)
 {
     testGenerationNombreAleatoire();
